@@ -1,0 +1,4 @@
+*.ico
+desktop.ini
+.dist
+*__pycache__

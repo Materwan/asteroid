@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asteroid"
+version = "1.0.0"
+description = "Clara: one AI with one memory, served over HTTP to any number of clients"
+requires-python = ">=3.11"
+dependencies = [
+    "pygame"
+]
+
+[project.scripts]
+asteroid = "Game"
