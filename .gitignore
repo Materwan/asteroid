@@ -2,3 +2,6 @@
 desktop.ini
 .dist
 *__pycache__
+*.egg-info
+.vscode
+save.txt
