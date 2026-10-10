@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "asteroid"
 version = "2.0.0"
-description = "Clara: one AI with one memory, served over HTTP to any number of clients"
+description = "A neural-network-driven Asteroids clone"
 requires-python = ">=3.11"
 dependencies = [
     "pygame",

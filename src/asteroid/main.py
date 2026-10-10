@@ -3,14 +3,13 @@ from shapely.geometry import LineString, Polygon
 import pygame
 import random
 import time
-import playerScript
-import asteroidScript
-import bulletScript
-import UIScript
-import menu
-import AAI
-import Neural_network
-import SaveScript
+from .playerScript import Player
+from .asteroidScript import Asteroid
+from .bulletScript import Bullet
+from .UIScript import Counter
+from .menu import Pause_Menu, Lunch_Menu, Lose_Menu
+from .AAI import Neuronal_Network
+from .SaveScript import read
 
 pygame.init()  # initialise pygame
 
@@ -51,13 +50,13 @@ class Game:
         self.speed_factor = speed_factor
         for i in range(4):
             background = pygame.transform.scale(
-                pygame.image.load("New Asteroid/Sprite/space_background.png").convert(),
+                pygame.image.load("Sprite/space_background.png").convert(),
                 (1000, 1000),
             )
             self.backgrounds.append(background)
         # create 50 asteroid
         for i in range(50):
-            asteroid = asteroidScript.Asteroid(
+            asteroid = Asteroid(
                 screen, random.randint(1, 3), [-10, 0], self.speed_factor
             )
             self.asteroids.append(asteroid)
@@ -74,12 +73,12 @@ class Game:
         self.exit_neuron = None
         self.running = True
         self.main_running = True
-        self.player = playerScript.Player(screen)
-        self.counter = UIScript.Counter(0, (900, 0), 48, screen)
-        self.counter_time = UIScript.Counter(0, (0, 0), 36, self.screen)
+        self.player = Player(screen)
+        self.counter = Counter(0, (900, 0), 48, screen)
+        self.counter_time = Counter(0, (0, 0), 36, self.screen)
         if self.mode == "AI":
-            self.counter_gen = UIScript.Counter(0, (0, 975), 36, self.screen)
-            self.counter_iteration = UIScript.Counter(0, (850, 975), 36, self.screen)
+            self.counter_gen = Counter(0, (0, 975), 36, self.screen)
+            self.counter_iteration = Counter(0, (850, 975), 36, self.screen)
         self.clock = pygame.time.Clock()
         self.screen_surface = pygame.Surface((1000, 1000), pygame.SRCALPHA)
         self.ai = ai
@@ -112,7 +111,7 @@ class Game:
 
                     elif event.key == pygame.K_SPACE:  # get the key pressed
                         if self.i > self.last_bullet + 5:
-                            bullet = bulletScript.Bullet(
+                            bullet = Bullet(
                                 self.speed_factor, self.move, self.screen
                             )  # create a bullet
                             self.bullets.append(bullet)  # add him to the list
@@ -122,7 +121,7 @@ class Game:
 
                 if event.key == pygame.K_ESCAPE:
                     diff = time.time() - self.epoch
-                    pauseMenu = menu.Pause_Menu(
+                    pauseMenu = Pause_Menu(
                         self.speed_factor, self.screen, self.generation, self.best_nn
                     )
                     self.running, self.speed_factor = pauseMenu.run()
@@ -201,7 +200,7 @@ class Game:
 
             if self.exit_neuron[4] >= 0.5:  # get the key pressed
                 if self.speed_factor > 10 or self.i > self.last_bullet + 5:
-                    bullet = bulletScript.Bullet(
+                    bullet = Bullet(
                         self.speed_factor, self.move, self.screen
                     )  # create a bullet
                     self.bullets.append(bullet)  # add him to the list
@@ -284,7 +283,7 @@ class Game:
         if self.epoch + (30 / self.speed_factor) <= time.time():  # if timer > 30 second
             # create 50 new asteroid
             for i in range(50):
-                asteroid = asteroidScript.Asteroid(
+                asteroid = Asteroid(
                     screen, random.randint(1, 3), [-10, 0], self.speed_factor
                 )
                 self.asteroids.append(asteroid)
@@ -327,7 +326,7 @@ class Game:
 
         self.screen.blit(self.screen_surface, (0, 0))
 
-        if mode == "AI":
+        if self.mode == "AI":
             self.counter_time.update(
                 round((time.time() - self.time) * self.speed_factor, 1)
             )
@@ -397,14 +396,14 @@ class Game:
 
 def main():
 
-    play, speed_factor, mode, save = menu.Lunch_Menu(screen).run()
+    play, speed_factor, mode, save = Lunch_Menu(screen).run()
 
     if mode == "player":
         while play:
-            Lose_Menu = Game(5, speed_factor, screen, 0, mode).run()
+            lose = Game(5, speed_factor, screen, 0, mode).run()
 
-            if Lose_Menu == True:
-                menu_lose = menu.Lose_Menu(screen)
+            if lose == True:
+                menu_lose = Lose_Menu(screen)
                 play = menu_lose.run()
             else:
                 play = False
@@ -418,8 +417,8 @@ def main():
         if save != "":
             file = open(save, "r")
             gen = int(file.readline(1))
-            variables = SaveScript.read(save)
-            ai = AAI.Neuronal_Network(
+            variables = read(save)
+            ai = Neuronal_Network(
                 variables[0],
                 variables[1],
                 variables[2],
@@ -431,20 +430,20 @@ def main():
             )
             neuronal_networks.append(ai)
             for i in range(nb_nn - 1):
-                nn = AAI.Neuronal_Network(10, 5, 10, screen)
+                nn = Neuronal_Network(10, 5, 10, screen)
                 nn.merge(neuronal_networks[0])
                 neuronal_networks.append(nn)
         else:
             gen = 0
             for i in range(nb_nn):
-                neuronal_networks.append(AAI.Neuronal_Network(10, 5, 10, screen))
+                neuronal_networks.append(Neuronal_Network(10, 5, 10, screen))
 
         while play:
             result = []
             for nn in neuronal_networks:
                 iteration += 1
                 if best_score == None:
-                    Lose_Menu, timer, count, speed_factor, play = Game(
+                    lose, timer, count, speed_factor, play = Game(
                         5,
                         speed_factor,
                         screen,
@@ -455,7 +454,7 @@ def main():
                         random.choice(neuronal_networks),
                     ).run()
                 else:
-                    Lose_Menu, timer, count, speed_factor, play = Game(
+                    lose, timer, count, speed_factor, play = Game(
                         5,
                         speed_factor,
                         screen,

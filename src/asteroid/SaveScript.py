@@ -1,9 +1,10 @@
-import AAI
+from .AAI import Neuronal_Network
 import pygame
 import random
 
 """screen = pygame.display.set_mode((1000, 1000))
 neuronal_network = AAI.Neuronal_Network(10, 5, 10, screen)"""
+
 
 def save_nn(file_path, gen, neuronal_network):
     file = open(file_path, "w")
@@ -11,12 +12,12 @@ def save_nn(file_path, gen, neuronal_network):
     file.writelines([str(neuronal_network.enter_neuron_size), "/n"])
     file.writelines([str(neuronal_network.normal_neuron_radius), "/n"])
     file.writelines([str(neuronal_network.exit_neuron_radius), "/n"])
-    #Enters Neurons
+    # Enters Neurons
     for enter_neuron in neuronal_network.enter_neuron:
         file.writelines(["Enter Neuron/n"])
         for i in range(2):
             file.writelines([str(enter_neuron.pos[i]), "/n"])
-    #Normals Neurons
+    # Normals Neurons
     for normal_neuron_layer in neuronal_network.normal_neuron:
         file.writelines(["Normal Layer/n"])
         for normal_neuron in normal_neuron_layer:
@@ -28,7 +29,7 @@ def save_nn(file_path, gen, neuronal_network):
                 for connection_index in range(len(neuronal_network.connection)):
                     if connection == neuronal_network.connection[connection_index]:
                         file.writelines([str(connection_index), "/n"])
-    #Exits Neurons
+    # Exits Neurons
     for exit_neuron in neuronal_network.exit_neuron:
         file.writelines(["Exit Neuron/n"])
         for i in range(2):
@@ -37,7 +38,7 @@ def save_nn(file_path, gen, neuronal_network):
             for connection_index in range(len(neuronal_network.connection)):
                 if connection == neuronal_network.connection[connection_index]:
                     file.writelines([str(connection_index), "/n"])
-    #Connections
+    # Connections
     all_neuron = []
     for neuron in neuronal_network.enter_neuron:
         all_neuron.append(neuron)
@@ -61,6 +62,7 @@ def save_nn(file_path, gen, neuronal_network):
     file.close
     return all_neuron
 
+
 def read(save_file):
     file = open(save_file, "r")
     lines = file.readlines()
@@ -77,13 +79,26 @@ def read(save_file):
         if lines[line] == "Normal Layer/n":
             the_line = line + 1
             normal_layer = []
-            while lines[the_line] != "Normal Layer/n" and lines[the_line] != "Exit Neuron/n":
+            while (
+                lines[the_line] != "Normal Layer/n"
+                and lines[the_line] != "Exit Neuron/n"
+            ):
                 i = the_line + 4
                 normal_neuron_connection = []
-                while lines[i] != "Normal Neuron/n" and lines[i] != "Normal Layer/n" and lines[i] != "Exit Neuron/n":
+                while (
+                    lines[i] != "Normal Neuron/n"
+                    and lines[i] != "Normal Layer/n"
+                    and lines[i] != "Exit Neuron/n"
+                ):
                     normal_neuron_connection.append(int(lines[i]))
                     i += 1
-                normal_layer.append([(int(lines[the_line + 1]), int(lines[the_line + 2])), int(lines[the_line + 3]), normal_neuron_connection])
+                normal_layer.append(
+                    [
+                        (int(lines[the_line + 1]), int(lines[the_line + 2])),
+                        int(lines[the_line + 3]),
+                        normal_neuron_connection,
+                    ]
+                )
                 the_line += i - the_line
             normal_neuron_values.append(normal_layer)
         if lines[line] == "Exit Neuron/n":
@@ -92,16 +107,28 @@ def read(save_file):
             while lines[i] != "Exit Neuron/n" and lines[i] != "Connection/n":
                 exit_neuron_connections.append(int(lines[i]))
                 i += 1
-            exit_neuron_values.append([(int(lines[line + 1]), int(lines[line + 2])), exit_neuron_connections])
+            exit_neuron_values.append(
+                [(int(lines[line + 1]), int(lines[line + 2])), exit_neuron_connections]
+            )
         if lines[line] == "Connection/n":
-            connection_values.append([(int(lines[line + 1]), int(lines[line + 2])), (int(lines[line + 3]), int(lines[line + 4])), float(lines[line + 5]), int(lines[line + 6])])
-    return [enter_neuron_size,
-            normal_neuron_radius,
-            exit_neuron_radius,
-            enter_neuron_values,
-            normal_neuron_values,
-            exit_neuron_values,
-            connection_values]
+            connection_values.append(
+                [
+                    (int(lines[line + 1]), int(lines[line + 2])),
+                    (int(lines[line + 3]), int(lines[line + 4])),
+                    float(lines[line + 5]),
+                    int(lines[line + 6]),
+                ]
+            )
+    return [
+        enter_neuron_size,
+        normal_neuron_radius,
+        exit_neuron_radius,
+        enter_neuron_values,
+        normal_neuron_values,
+        exit_neuron_values,
+        connection_values,
+    ]
+
 
 """colors = []
 for i in range(1000):
